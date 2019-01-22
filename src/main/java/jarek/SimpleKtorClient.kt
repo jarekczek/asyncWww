@@ -39,33 +39,6 @@ object SimpleKtorClient {
       }
       coroutines.forEach { it.join() }
     }
-    /*
-    val connections = mutableListOf<URLConnection>()
-    for(i in 1..100000) {
-      try {
-        val c = URL("http://localhost:8080").openConnection()!!
-        c.connect()
-        connections.add(c)
-        if (i < 4)
-          println("connection $i ok")
-      } catch (e: Exception) {
-        println("error at $i: $e")
-        break
-      }
-      //s.getOutputStream().write("GET / HTTP/1.1\nHost: localhost\n\n".toByteArray())
-      //val br = BufferedReader(InputStreamReader(s.getInputStream()))
-      //println(br.readLine())
-    }
-    println("reading all data")
-    var first = true
-    connections.forEach {
-      val bytes = it.getInputStream().readBytes()
-      if (first) {
-        println("read bytes " + bytes.size)
-        first = false
-      }
-    }
-    */
     println("done" + time())
   }
 }
