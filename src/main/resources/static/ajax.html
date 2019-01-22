@@ -1,0 +1,17 @@
+<html>
+<body onload='onLoad()'>
+</body>
+</html>
+
+<script>
+var onLoad = function() {
+  document.body.innerHTML = "wait";
+  var r = new XMLHttpRequest();
+  //r.timeout = 10;
+  r.open("GET", "http://localhost:8080/page", false);
+  r.setRequestHeader("accept", "text/plain");
+  r.send();
+  document.body.innerHTML = "status: " + r.status + "<br/>";
+  document.body.innerHTML += "content: " + r.responseText;
+};
+</script>

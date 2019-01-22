@@ -1,0 +1,66 @@
+apply plugin: 'application'
+apply plugin: 'java'
+
+apply plugin: 'kotlin'
+
+buildscript {
+  ext.kotlin_version = "1.2.21"
+  ext.ktor_version = '0.9.3'
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
+}
+
+apply plugin: 'eclipse'
+eclipse.classpath.downloadJavadoc = true
+eclipse.classpath.downloadSources = false
+tasks.eclipse {
+  doLast {
+    'D:\\Program_Files\\eSpeak\\command_line\\espeak.exe eclipse'.execute()
+  }
+}
+
+repositories {
+  mavenCentral()
+  jcenter()
+  maven { url "http://dl.bintray.com/kotlin/ktor" }
+  maven { url "https://dl.bintray.com/kotlin/kotlinx" }
+}
+
+dependencies {
+  compile 'org.springframework.boot:spring-boot-starter-web:1.5.6.RELEASE'
+  compile 'org.springframework:spring-webmvc:4.3.7.RELEASE'
+  compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+  compile "io.ktor:ktor-client-core:$ktor_version"
+  compile "io.ktor:ktor-client-apache:$ktor_version"
+  compile "io.ktor:ktor-client-cio:$ktor_version"
+
+  compile 'org.glassfish.jersey.core:jersey-client:2.26'
+  compile 'org.glassfish.jersey.inject:jersey-hk2:2.26'
+  testCompile 'junit:junit:4.12'
+}
+
+tasks.withType(Test) {
+  outputs.upToDateWhen {false}
+  testLogging.showStandardStreams = true
+  testLogging.exceptionFormat = 'full'
+}
+
+mainClassName = 'jarek.Main'
+
+jar { // java plugin
+  manifest {
+    attributes(
+            "Manifest-Version": "1.0",
+            "Main-Class": tasks.run.main,
+            // classpath jar
+            "Class-Path": configurations.compile.files.collect {
+              "file:///" + it.toString()
+            }.join(" ")
+    )
+  }
+}
