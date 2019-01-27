@@ -15,23 +15,38 @@ object FinagleClient {
   
   def main(args: Array[String])
   {
+    val server = "localhost"
+    val port = "8080"
     var t0 = System.currentTimeMillis()
     def time() = ", time: " + ((System.currentTimeMillis() - t0) / 1000.0)
-    println(1)
-    val con = Http.client.newService("localhost:8080")
-    println("service ready" + time() + ", restarting time")
+    val url = "http://" + server + ":" + port + "/waitAsync?seconds=3"
+    println("starting up")
+    val con = Http.client.newService(server + ":" + port)
+    println("service ready" + time())
+
+    con.apply(Request(Method.Get, "http://" + server + ":8080")).toJavaFuture.get()
+    println("warmed up" + time() + ", restarting time")
+
     t0 = System.currentTimeMillis()
-    val c = 5000
-    val url = "http://localhost:8080/waitAsync?seconds=120"
+    val c = 1000
     val futures = (1 to c).map { (i: Int) =>
       con.apply(Request(Method.Get, url))
     }
     println("collecting" + time())
-    Future.collect(futures)
+    try {
+      Future.collect(futures).toJavaFuture.get()
+    } catch {
+      case e: Exception => println("caught " + e)
+    }
     println("results" + time())
+    println("first result: " + futures.head.toJavaFuture.get())
     futures.foreach { (fut: Future[Response]) =>
-      val resp = fut.toJavaFuture.get()
-      //println(resp.contentString)
+      try {
+        val resp = fut.toJavaFuture.get()
+        println(resp.contentString + time())
+      } catch {
+        case e: Exception => println("exception: " + e + time())
+      }
     }
     println("done" + time())
   }
