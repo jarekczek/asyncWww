@@ -54,12 +54,13 @@ mainClassName = 'jarek.Main'
 
 jar { // java plugin
   manifest {
+    def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
     attributes(
             "Manifest-Version": "1.0",
             "Main-Class": tasks.run.main,
             // classpath jar
             "Class-Path": configurations.compile.files.collect {
-              "file:///" + it.toString()
+              (isWindows ? "file:///" : "") + it.toString()
             }.join(" ")
     )
   }
