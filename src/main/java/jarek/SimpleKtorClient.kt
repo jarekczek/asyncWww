@@ -27,12 +27,12 @@ object SimpleKtorClient {
     fun time() = ", time: " + ((System.currentTimeMillis() - t0) / 1000.0)
     runBlocking(newFixedThreadPoolContext(5, "apool")) {
       val coroutines = Collections.synchronizedList(mutableListOf<Deferred<Unit>>())
-      for(i in 1..5000) {
+      for(i in 1..2000) {
         val coroutine = async {
           //println("inside async")
           val cli = HttpClient(CIO)
           //println("client ready")
-          val res = cli.get<String>("http://localhost:8080/waitAsync?seconds=120")
+          val res = cli.get<String>("http://localhost:8080/waitAsync?seconds=30")
           //println("read msg " + res + time())
         }
         coroutines.add(coroutine)

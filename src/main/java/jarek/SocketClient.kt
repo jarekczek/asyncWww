@@ -16,17 +16,18 @@ object SocketClient {
   fun main(args: Array<String>) {
     val sockets = LinkedList<SocketChannel>()
     val t0 = System.currentTimeMillis()
+    val verbose = true
     fun time() = ", time: " + ((System.currentTimeMillis() - t0) / 1000.0)
-    for(i in 1..5000) {
+    for(i in 1..2000) {
       val s = SocketChannel.open(InetSocketAddress("localhost", 8080))
-      if (i < -10)
+      if (verbose && i <= 5)
         println("connection ok on port " + s.localAddress + ", blocking: " + s.isBlocking)
       sockets.add(s)
     }
 
     println("writing sockets" + time())
     sockets.forEach { s ->
-      val req = "GET /waitAsync?seconds=120 HTTP/1.1\nHost: localhost\n\n"
+      val req = "GET /waitAsync?seconds=10 HTTP/1.1\nHost: localhost\n\n"
       s.configureBlocking(true)
       s.write(ByteBuffer.wrap(req.toByteArray()))
     }
@@ -39,7 +40,7 @@ object SocketClient {
       val it = sockets.iterator()
       while (it.hasNext()) {
         val s = it.next()
-        //println("connected: " + s.isConnected)
+        //if (verbose) println("connected: " + s.isConnected)
         if (s.isConnected) {
           s.configureBlocking(false)
           val buf = java.nio.ByteBuffer.allocate(1000)
@@ -49,8 +50,9 @@ object SocketClient {
             s.close()
             it.remove()
             done++
-            //println("bytes read: $bytesRead, done items: $done"
-            //  + ", time: " + (System.currentTimeMillis() - t0)/1000.0)
+            if (verbose)
+              println("bytes read: $bytesRead, done items: $done"
+                + ", time: " + (System.currentTimeMillis() - t0)/1000.0)
           } else {
             allDisconnected = false
           }

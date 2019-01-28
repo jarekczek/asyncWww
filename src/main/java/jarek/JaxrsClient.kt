@@ -17,29 +17,29 @@ object JaxrsClient {
   @JvmStatic
   fun main(args: Array<String>) {
     val t0 = System.currentTimeMillis()
+    fun time() = ", time: " + ((System.currentTimeMillis() - t0) / 1000.0)
     val futures = LinkedList<Future<Response>>()
     val client = ClientBuilder.newClient()
 
-    for(i in 1..1000) {
+    for(i in 1..2000) {
       try {
         //.header("Content-type", "application/json")
-        val req = client.target("http://localhost:8080/waitAsync?seconds=10").request()
+        val req = client.target("http://localhost:8080/waitAsync?seconds=20").request()
         val fut = req.async().get()
-        println("created future $i")
+        println("created future $i" + time())
         futures.add(fut)
       } catch (e: Exception) {
-        println("error at $i: $e")
+        println("error at $i: $e" + time())
         break
       }
     }
     println("getting futures, time: " + (System.currentTimeMillis() - t0)/1000.0)
     futures.forEach {
       val resp = it.get()!!
-      println("" + resp.getStatus() + " " + resp.readEntity(String::class.java)
-        + ", time: " + (System.currentTimeMillis() - t0)/1000.0)
+      println("" + resp.getStatus() + " " + resp.readEntity(String::class.java) + time())
       resp.close()
     }
-    println("done")
+    println("done" + time())
     exitProcess(0)
   }
 }

@@ -24,13 +24,15 @@ object SimpleJavaClientWithThreads {
 
   @JvmStatic
   fun main(args: Array<String>) {
+    val t0 = System.currentTimeMillis()
+    fun time() = ", time: " + ((System.currentTimeMillis() - t0) / 1000.0)
     val connections = Collections.synchronizedList(mutableListOf<URLConnection>())
-    val threadCount = 5000
+    val threadCount = 2000
     for(i in 1..threadCount) {
       Thread({
         var c: URLConnection? = null
         try {
-          c = URL("http://localhost:8080/waitAsync?seconds=120").openConnection()!!
+          c = URL("http://localhost:8080/waitAsync?seconds=20").openConnection()!!
           c.connect()
           connections.add(c)
           if (i < 40000)
@@ -56,9 +58,9 @@ object SimpleJavaClientWithThreads {
     }
     sem1.acquire(threadCount)
     latch.countDown()
-    println("waiting for bye")
+    println("waiting for bye" + time())
     sem2.acquire(threadCount)
     println("threads $threadCount, success: $successCount")
-    println("done")
+    println("done" + time())
   }
 }
