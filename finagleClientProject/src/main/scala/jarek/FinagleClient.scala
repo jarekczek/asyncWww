@@ -1,6 +1,6 @@
 package jarek
 
-import java.util.concurrent.{BlockingQueue, CountDownLatch, LinkedBlockingQueue}
+import java.util.concurrent.{BlockingQueue, CountDownLatch, LinkedBlockingQueue, TimeUnit}
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.BinaryOperator
 
@@ -15,20 +15,23 @@ object FinagleClient {
   
   def main(args: Array[String])
   {
-    val server = "localhost"
-    val port = "8080"
+    val server = System.getProperty("host", "localhost")
+    val port = System.getProperty("port", "8080").toInt
+    val delay = System.getProperty("delay", "10").toInt
     var t0 = System.currentTimeMillis()
     def time() = ", time: " + ((System.currentTimeMillis() - t0) / 1000.0)
-    val url = "http://" + server + ":" + port + "/waitAsync?seconds=3"
+    val url = "http://" + server + ":" + port + "/waitAsync?seconds=" + delay
     println("starting up")
-    val con = Http.client.newService(server + ":" + port)
+    val con = Http.client
+      .withTransport.connectTimeout(Duration(10, TimeUnit.SECONDS))
+      .newService(server + ":" + port)
     println("service ready" + time())
 
-    con.apply(Request(Method.Get, "http://" + server + ":8080")).toJavaFuture.get()
+    con.apply(Request(Method.Get, "http://" + server + ":" + port)).toJavaFuture.get()
     println("warmed up" + time() + ", restarting time")
 
     t0 = System.currentTimeMillis()
-    val c = 1000
+    val c = System.getProperty("count", "2000").toInt
     val futures = (1 to c).map { (i: Int) =>
       con.apply(Request(Method.Get, url))
     }
@@ -43,7 +46,7 @@ object FinagleClient {
     futures.foreach { (fut: Future[Response]) =>
       try {
         val resp = fut.toJavaFuture.get()
-        println(resp.contentString + time())
+        //println(resp.contentString + time())
       } catch {
         case e: Exception => println("exception: " + e + time())
       }

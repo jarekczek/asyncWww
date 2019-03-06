@@ -27,20 +27,19 @@ object SimpleJavaClientWithThreads {
     val t0 = System.currentTimeMillis()
     fun time() = ", time: " + ((System.currentTimeMillis() - t0) / 1000.0)
     val connections = Collections.synchronizedList(mutableListOf<URLConnection>())
-    val threadCount = 2000
+    val threadCount = Pars.count
     for(i in 1..threadCount) {
       Thread({
         var c: URLConnection? = null
         try {
-          c = URL("http://localhost:8080/waitAsync?seconds=20").openConnection()!!
+          c = URL(Pars.serverUrl).openConnection()!!
           c.connect()
           connections.add(c)
-          if (i < 40000)
+          if (Pars.verbose)
             println("connection $i ok")
           successCount.incrementAndGet()
         } catch (e: Exception) {
-          //println(e)
-          c = null
+          println(e)
         }
 
         sem1.release()
@@ -48,7 +47,8 @@ object SimpleJavaClientWithThreads {
 
         if (c != null) {
           val bytes = c.getInputStream().readBytes()
-          if (requestsDone.incrementAndGet() < 10000) {
+          requestsDone.incrementAndGet()
+          if (Pars.verbose) {
             println("read bytes " + bytes.size + ", time: " + (System.currentTimeMillis() - t0)/1000.0)
           }
         }

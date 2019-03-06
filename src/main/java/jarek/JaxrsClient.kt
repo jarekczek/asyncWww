@@ -21,12 +21,13 @@ object JaxrsClient {
     val futures = LinkedList<Future<Response>>()
     val client = ClientBuilder.newClient()
 
-    for(i in 1..2000) {
+    for(i in 1..Pars.count) {
       try {
         //.header("Content-type", "application/json")
-        val req = client.target("http://localhost:8080/waitAsync?seconds=20").request()
+        val req = client.target(Pars.serverUrl).request()
         val fut = req.async().get()
-        println("created future $i" + time())
+        if (Pars.verbose)
+          println("created future $i" + time())
         futures.add(fut)
       } catch (e: Exception) {
         println("error at $i: $e" + time())
@@ -36,7 +37,8 @@ object JaxrsClient {
     println("getting futures, time: " + (System.currentTimeMillis() - t0)/1000.0)
     futures.forEach {
       val resp = it.get()!!
-      println("" + resp.getStatus() + " " + resp.readEntity(String::class.java) + time())
+      if (Pars.verbose)
+        println("" + resp.getStatus() + " " + resp.readEntity(String::class.java) + time())
       resp.close()
     }
     println("done" + time())

@@ -13,7 +13,7 @@ object SimpleJavaClient {
     val connections = mutableListOf<URLConnection>()
     for(i in 1..3) {
       try {
-        val c = URL("http://localhost:8080/waitAsync?seconds=3").openConnection()!!
+        val c = URL(Pars.serverUrl).openConnection()!!
         c.connect()
         c.getInputStream()
         connections.add(c)

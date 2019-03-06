@@ -16,10 +16,10 @@ object SocketClient {
   fun main(args: Array<String>) {
     val sockets = LinkedList<SocketChannel>()
     val t0 = System.currentTimeMillis()
-    val verbose = true
+    val verbose = Pars.verbose
     fun time() = ", time: " + ((System.currentTimeMillis() - t0) / 1000.0)
-    for(i in 1..2000) {
-      val s = SocketChannel.open(InetSocketAddress("localhost", 8080))
+    for(i in 1..Pars.count) {
+      val s = SocketChannel.open(InetSocketAddress(Pars.host, Pars.port))
       if (verbose && i <= 5)
         println("connection ok on port " + s.localAddress + ", blocking: " + s.isBlocking)
       sockets.add(s)
@@ -27,7 +27,7 @@ object SocketClient {
 
     println("writing sockets" + time())
     sockets.forEach { s ->
-      val req = "GET /waitAsync?seconds=10 HTTP/1.1\nHost: localhost\n\n"
+      val req = "GET /waitAsync?seconds=${Pars.delay} HTTP/1.1\nHost: ${Pars.host}\n\n"
       s.configureBlocking(true)
       s.write(ByteBuffer.wrap(req.toByteArray()))
     }
