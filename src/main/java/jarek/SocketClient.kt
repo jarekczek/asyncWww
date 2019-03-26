@@ -1,5 +1,6 @@
 package jarek
 
+import io.ktor.util.decodeString
 import io.ktor.util.moveToByteArray
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -27,7 +28,10 @@ object SocketClient {
 
     println("writing sockets" + time())
     sockets.forEach { s ->
-      val req = "GET /waitAsync?seconds=${Pars.delay} HTTP/1.1\nHost: ${Pars.host}\n\n"
+      val req = "GET /waitAsync?seconds=${Pars.delay} HTTP/1.1\n" +
+        "Host: ${Pars.host}\n" +
+        "Accept: text/plain, text/html\n" +
+        "\n"
       s.configureBlocking(true)
       s.write(ByteBuffer.wrap(req.toByteArray()))
     }
@@ -50,9 +54,13 @@ object SocketClient {
             s.close()
             it.remove()
             done++
-            if (verbose)
+            val data = buf.decodeString()
+            val ok = data.startsWith("HTTP/1.1 200")
+            if (verbose || !ok) {
               println("bytes read: $bytesRead, done items: $done"
-                + ", time: " + (System.currentTimeMillis() - t0)/1000.0)
+                + ", time: " + (System.currentTimeMillis() - t0) / 1000.0)
+              println(data)
+            }
           } else {
             allDisconnected = false
           }
@@ -60,7 +68,7 @@ object SocketClient {
         //val br = BufferedReader(InputStreamReader(s.getInputStream()))
         //println(br.readLine() + ", time: " + (System.currentTimeMillis() - t0)/1000.0)
       }
-      Helper.sleepNoThrow(100)
+      //Helper.sleepNoThrow(10)
     }
 
     println("ok, " + ", time: " + (System.currentTimeMillis() - t0)/1000.0)
