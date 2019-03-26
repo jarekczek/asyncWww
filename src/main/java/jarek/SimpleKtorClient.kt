@@ -13,6 +13,7 @@ import io.ktor.client.engine.apache.Apache
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.config
 import io.ktor.client.request.get
+import kotlinx.coroutines.experimental.CancellationException
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.awaitAll
@@ -29,15 +30,25 @@ object SimpleKtorClient {
       val coroutines = Collections.synchronizedList(mutableListOf<Deferred<Unit>>())
       for(i in 1..Pars.count) {
         val coroutine = async {
-          //println("inside async")
-          val cli = HttpClient(CIO)
-          //println("client ready")
-          val res = cli.get<String>(Pars.serverUrl)
-          //println("read msg " + res + time())
+          try {
+            if (Pars.verbose)
+              println("inside async")
+            val cli = HttpClient(CIO)
+            if (Pars.verbose)
+              println("client ready")
+            val res = cli.get<String>(Pars.serverUrl)
+            if (Pars.verbose)
+              println("read msg " + res + ", " + res.length + ", " + time())
+          } catch (e: Exception) {
+            e.printStackTrace()
+            System.exit(1)
+          }
         }
         coroutines.add(coroutine)
       }
-      coroutines.forEach { it.join() }
+      coroutines.forEach {
+        it.join()
+      }
     }
     println("done" + time())
   }
