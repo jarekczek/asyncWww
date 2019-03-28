@@ -52,3 +52,11 @@ MaxUserPort, default 5000
 AsyncRequestTimeoutException, HTTP 503
 spring.mvc.async.request-timeout=300000 or -1
 
+https://stackoverflow.com/a/42220767/772981
+server.tomcat.max-connections=30000
+
+Max connections on Windows 10 spring boot tomcat: 40000 (linux 19000 + Windows 7 9000 + Windows 10 12000)
+All requests fired below 1 minute, 3 minutes delay.
+"received request 40000 on Thread[http-nio-8080-exec-18,5,main]"
+memory used on server: 4.6G
+
