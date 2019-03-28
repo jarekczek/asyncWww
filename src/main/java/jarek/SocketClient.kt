@@ -24,10 +24,7 @@ object SocketClient {
       if (verbose && i <= 5)
         println("connection ok on port " + s.localAddress + ", blocking: " + s.isBlocking)
       sockets.add(s)
-    }
 
-    println("writing sockets" + time())
-    sockets.forEach { s ->
       val req = "GET /waitAsync?seconds=${Pars.delay} HTTP/1.1\n" +
         "Host: ${Pars.host}\n" +
         "Accept: text/plain, text/html\n" +
